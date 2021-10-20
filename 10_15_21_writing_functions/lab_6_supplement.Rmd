@@ -1,0 +1,28 @@
+---
+title: "lab_6_supplement Writing Functions"
+author: "Kelly_F"
+date: "10/20/2021"
+output: html_document
+---
+**Section 1:** Improving analysis code by writing functions
+A. Improve this regular R code by abstracting the main activities in your own new function. Note, we will go through this example together in the formal lecture. The main steps should entail running through the code to see if it works, simplifying to a core working code snippet, reducing any calculation duplication, and finally transferring your new streamlined code into a more useful function for you.
+
+```{r}
+# (A. Can you improve this analysis code?
+df <- data.frame(a=1:10, b=seq(200,400,length=10),c=11:20,d=NA) #create df
+df$a <- (df$a - min(df$a)) / (max(df$a) - min(df$a))
+df$b <- (df$b - min(df$a)) / (max(df$b) - min(df$b))
+df$c <- (df$c - min(df$c)) / (max(df$c) - min(df$c))
+df$d <- (df$d - min(df$d)) / (max(df$a) - min(df$d))
+
+# Assuming that the code is meant to us the same input $column for all min & max functions per line above, and that typos exist, I would correct the code to the following 
+mask <- data.frame(a=1:10, b=seq(200,400,length=10),c=11:20,d=NA) #create data frame
+
+df_analysis <- function(mask_column){
+  mask_column <- (mask_column - min(mask_column)) / (max(mask_column) - min(mask_column))
+}
+
+df_analysis(mask$a)
+
+```
+

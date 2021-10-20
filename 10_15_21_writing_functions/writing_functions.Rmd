@@ -1,0 +1,174 @@
+---
+title: "10_13_21_writing_R_functions"
+author: "Kelly_F"
+date: "10/15/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Quick R Markdown intro
+
+We can write text to be **bolded text**, or *italics*. 
+
+Do (my bullet list example): 
+
+- this
+- and that
+- and another thing
+
+Note, two lines between text are needed to create a new line. 
+
+--- 
+
+We can include some code: 
+```{r}
+#option+CMD+I to insert a new code block
+#My comment that will not be passed into R
+
+#My Plot
+plot(1:10)
+```
+
+---
+**Q1.** Write a function grade() to determine an overall grade from a vector of student homework assignment scores dropping the lowest single score. If a student misses a homework (i.e. has an NA value) this can be used as a score to be potentially dropped. Your final function should be adquately explained with code comments and be able to work on an example class gradebook such as this one in CSV format: “https://tinyurl.com/gradeinput” [3pts]
+
+```{r}
+# Example input vectors to start with
+student1 <- c(100, 100, 100, 100, 100, 100, 100, 90)
+student2 <- c(100, NA, 90, 90, 90, 90, 97, 80)
+student3 <- c(90, NA, NA, NA, NA, NA, NA, NA)
+
+sum(is.na(student3))
+which(is.na(student3))
+mean(na.omit[student3])
+mean(student3, na.rm=TRUE)
+mean(student3)
+# Finding the lowest score of student 1
+```
+
+
+```{r}
+min(student1, na.rm=TRUE)
+
+# Find the position of the minimum score
+which.min(student1)
+
+# Remove lowest score from student1
+student1 <- student1[-which.min(student1)]
+student1
+
+# Now take the mean
+student1_avg <- mean(student1)
+student1_avg
+
+# Repeat example but for student 2. Must remove NA values to calculate mean
+# Remove minimum score then calculate mean
+student2_avg <- mean(student2[-which.min(student2)],
+                     na.rm=TRUE)
+student2_avg
+
+# Assign zeros to NA values instead of dropping so that grades aren't inflated. Can then treat zero as a low score to be dropped prior to calculating average
+student3[is.na(student3)] <- 0
+student3
+which.min(student3)
+student3_avg <- mean(student3[-which.min(student3)])
+student3_avg 
+
+```
+```{r}
+
+# Now write a function to calculate overall homework grade 
+
+grade <- function(student_grades){ # A function titled "grade" that needs a vector of student grade scores as an input
+  student_grades[is.na(student_grades)] <- 0 # Replace NA values with zero
+  overall_grade <- mean(student_grades[-which.min(student_grades)]) # Drop lowest score and calculate the mean
+}
+
+# Let's test our function 
+student2 <- c(100, NA, 90, 90, 90, 90, 97, 80)
+student3 <- c(90, NA, NA, NA, NA, NA, NA, NA)
+student2_grade <- grade(student2)
+student2_grade
+student3_grade <- grade(student3)
+student3_grade
+```
+
+```{r}
+# Now lets apply our grade function this to a df of grades 
+
+# Import data
+df <- read.csv("/Volumes/GoogleDrive/My Drive/Courses/BGGN_213/10_15_21_writing_functions/student_homework.csv", header=TRUE, row.names=1, sep=",")
+
+#Test out "grade" function on one row of data 
+# Take first row for student1 grades
+student1_grades <- as.numeric(df[1,])
+student1_grades
+
+# Apply grade function to student1 to calculate overall grade 
+student1_overall_grade <- grade(student1_grades)
+student1_overall_grade
+
+#Calculate overall grade for all students in the df
+for (i in 1:nrow(df)){
+  student_grades <- as.numeric(df[i,])
+  df$overall.grade[i] <- grade(student_grades)
+}
+df
+
+# Lets try an alternative approach with the "apply" function 
+df2 <- read.csv("/Volumes/GoogleDrive/My Drive/Courses/BGGN_213/10_15_21_writing_functions/student_homework.csv", header=TRUE, row.names=1, sep=",")
+
+overall_grades <- apply(df2, 1, grade)
+
+```
+Q2. Using your grade() function and the supplied gradebook, Who is the top scoring student overall in the gradebook? [3pts]
+
+Answer: Student #18
+
+```{r}
+# Determine which student the maximum grade comes from
+which.max(overall_grades)
+```
+Q3. From your analysis of the gradebook, which homework was toughest on students (i.e. obtained the lowest scores overall? [2pts]
+
+Answer: homework 2 
+```{r}
+# Replace NA values with zeros in the data frame
+mask <- df2
+mask[is.na(mask)] <- 0 
+
+# Calculate average score per homework 
+avg_homework <- apply(mask, 2, mean)
+avg_homework
+
+```
+Q4. Optional Extension: From your analysis of the gradebook, which homework was most predictive of overall score (i.e. highest correlation with average grade score)? [1pt]
+
+Answer: homework 5 was the most predictive 
+
+```{r}
+# Pearson correlation between homework 1 and overall grades
+cor(mask$hw1, overall_grades)
+
+# Use apply function to do all correlations at once
+apply(mask, 2, cor, overall_grades)
+
+# Make a graph of our grade scores
+boxplot(mask)
+
+```
+
+Write a function "grade2()" to determine an overall grade from a vector of student homework assignment scores OPTIONALLY dropping the lowest single assignment score
+```{r}
+grade2 <- function(x, drop.lowest=TRUE) {
+ x <- as.numeric(x)
+ x[ is.na(x)] = 0
+ if(drop.lowest) {
+ mean(x[ -which.min(x) ])
+ } else {
+   mean(x)
+ }
+}
+```
+
