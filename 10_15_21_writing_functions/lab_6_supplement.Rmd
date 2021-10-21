@@ -31,4 +31,70 @@ analyzed_mask <- apply(mask, 2, df_analysis)
 analyzed_mask
 
 ```
+B. Next improve the below example code for the analysis of protein drug interactions by abstracting the main activities in your own new function. Then answer questions 1 to 6 below. It is recommended that you start a new Project in RStudio in a new directory and then install the bio3d package noted in the R code below (N.B. you can use the command install.packages("bio3d") or the RStudio interface to do this).
+
+Then run through the code to see if it works, fix any copy/paste errors before simplifying to a core working code snippet, reducing any calculation duplication, and finally transferring it into a more useful function for you.
+
+**Q1. What type of object is returned from the read.pdb() function?** 
+List 
+
+**Q2. What does the trim.pdb() function do?**
+The trim.pdb() function produces a new PDB object that contains a subset of atoms from a larger PDB object.
+
+**Q3. What input parameter would turn off the marginal black and grey rectangles in the plots and what do they represent in this case?**
+bot=FALSE. They represent the residues of secondary structure object, which in this case is ____? 
+
+**Q4. What would be a better plot to compare across the different proteins?**
+
+**Q5. Which proteins are more similar to each other in their B-factor trends. How could you quantify this?**
+
+**Q6. How would you generalize the original code above to work with any set of input
+protein structures?**
+
+```{r}
+# install.packages("bio3d")
+
+# Can you improve this analysis code?
+library(bio3d)
+s1 <- read.pdb("4AKE")  # kinase with drug
+s2 <- read.pdb("1AKE")  # kinase no drug
+s3 <- read.pdb("1E4Y")  # kinase with drug
+
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+s3.chainA <- trim.pdb(s3, chain="A", elety="CA") #typo fixed, s1 -> s3
+
+s1.b <- s1.chainA$atom$b
+s2.b <- s2.chainA$atom$b
+s3.b <- s3.chainA$atom$b
+
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+
+#1 Type of object returned from read.pdb
+typeof(s1)
+
+#2 Determine what trim.pdb function does 
+?trim.pdb
+
+# Create function to simplify code from above 
+plot_Bfactor <- function(PDB_code){
+  protein <-read.pdb(PDB_code) 
+  protein.chainA <- trim.pdb(protein, chain="A", elety="CA")
+  protein.b <- protein.chainA$atom$b
+  plotb3(protein.b, sse=protein.chainA, typ="l", ylab="Bfactor", bot=FALSE) #rectangles at bottom of the graph are removed w/ bot=FALSE
+}
+
+# See if function works on single protein
+plot_Bfactor("4AKE")
+
+# Create list of all proteins you want to run through function 
+proteins <- c("4AKE", "1AKE", "1E4Y")
+
+# Apply function to all proteins of interest 
+lapply(proteins, plot_Bfactor)
+
+
+```
 
