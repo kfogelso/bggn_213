@@ -15,14 +15,20 @@ df$b <- (df$b - min(df$a)) / (max(df$b) - min(df$b))
 df$c <- (df$c - min(df$c)) / (max(df$c) - min(df$c))
 df$d <- (df$d - min(df$d)) / (max(df$a) - min(df$d))
 
-# Assuming that the code is meant to us the same input $column for all min & max functions per line above, and that typos exist, I would correct the code to the following 
-mask <- data.frame(a=1:10, b=seq(200,400,length=10),c=11:20,d=NA) #create data frame
+# Assuming that the code is meant to use the same input $column for all min & max functions per line above, and that typos exist, I would correct the code to the following 
+mask <- data.frame(a=1:10, b=seq(200,400,length=10),c=11:20,d=NA) =
 
-df_analysis <- function(mask_column){
-  mask_column <- (mask_column - min(mask_column)) / (max(mask_column) - min(mask_column))
+# Write the function. Function makes all columns of dataframe the same. 
+df_analysis <- function(column){
+  column <- (column - min(column)) / (max(column) - min(column))
 }
 
-df_analysis(mask$a)
+# Test function on one column of data frame 
+print(df_analysis(mask$a))
+
+# Apply function to entire data frame
+analyzed_mask <- apply(mask, 2, df_analysis)
+analyzed_mask
 
 ```
 
