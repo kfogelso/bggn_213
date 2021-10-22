@@ -2,7 +2,9 @@
 title: "Machine Learning pt. 1"
 author: "Kelly_F"
 date: "10/22/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 # Clustering Methods
 1. k-means clustering: R function is "kmeans()". 
@@ -181,11 +183,13 @@ dim(rna.data)
 ```{r}
 # Generate PCA
 pca_rna <- prcomp(t(rna.data), scale=TRUE) #transpose data before running PCA analysis 
- 
+
 # Simple un polished plot of pc1 and pc2
 plot(pca_rna$x[,1], pca_rna$x[,2], xlab="PC1", ylab="PC2")
 text(pca_rna$x[, 1:2], labels= colnames(rna.data))
+```
 
+```{r}
 #Investigate what proportion of variance PC1 explains
 summary(pca_rna) 
 ```
