@@ -7,7 +7,9 @@ output:
   html_document: default
 ---
 # Clustering Methods
-1. k-means clustering: R function is "kmeans()". 
+
+## Kmeans clustering
+k-means clustering: R function is "kmeans()". 
 
 Test data used below to learn use of kmeans() function. 
 ```{r}
@@ -54,7 +56,7 @@ km_data$centers
 plot(data, col=km_data$cluster)
 points(km_data$centers, col="blue", pch=15, cex=2)
 ```
-# Hierarchical Clustering 
+## Hierarchical Clustering 
 
 
 We will use the 'hclust()' function on the same data as kmeans example to see how this method works. 
@@ -91,7 +93,7 @@ plot(data, col=grps)
 - doesn't require euclidean distances as input.
 
 
-# Principal Component Analysis w/ UK Food Data 
+## Principal Component Analysis w/ UK Food Data 
 
 
 Analysis goal: is the diet composition across the 4 countries of interest different? 
