@@ -1,0 +1,193 @@
+---
+title: "Machine Learning pt. 1"
+author: "Kelly_F"
+date: "10/22/2021"
+output: html_document
+---
+# Clustering Methods
+1. k-means clustering: R function is "kmeans()". 
+
+Test data used below to learn use of kmeans() function. 
+```{r}
+# Create Test Data
+tmp <- c(rnorm(30, 3), rnorm(30, -3))
+data <- cbind(tmp, rev(tmp)) #two columns, with second column the reverse of tmp vector
+
+# Plot data, which was constructed to have two clear clusters of data. 
+plot(data)
+```
+Next, run 'kmeans()' clustering w/ k set to 2, nstart 20. 
+
+A condition of kmeans is that you must tell it how many clusters you want. 
+
+Note: "clustering vector"(output) Tells you which cluster each element of the data belongs to. 
+```{r}
+# Run kmeans
+km_data <- kmeans(data, centers=2, nstart=20)
+km_data
+```
+>Q. How many points are in each cluster? Tip: use "Value" section of help document. 
+
+
+30 points in each cluster.
+
+```{r}
+km_data$size
+```
+> Q. What "component" of your results object details cluster assigment/membership? 
+
+```{r}
+km_data$cluster
+```
+
+> Q. What "compoennet" of your results object details cluster center? 
+
+```{r}
+km_data$centers
+```
+
+> Q. Plot x colored by the kmeans cluster assignemnt and add cluster centers as blue points. 
+
+```{r}
+plot(data, col=km_data$cluster)
+points(km_data$centers, col="blue", pch=15, cex=2)
+```
+# Hierarchical Clustering 
+
+
+We will use the 'hclust()' function on the same data as kmeans example to see how this method works. 
+```{r}
+# hclust needs a distance matrix as an input
+hc <- hclust(dist(data))
+hc
+
+# Plot Dendrogram to investigate between-cluster differences. 
+# Further distance on the dendrogram = more dissimilar 
+plot(hc)
+abline(h=7, col="red")
+```
+To find our membership vector we need to "cut" the tree into its respective branches (clusters). For this we will use the 'cutree()' function and tell it the height to cut at. 
+```{r}
+# Cut at height=7
+cutree(hc, h=7)
+
+# Alternatively, we can instead tell 'cutree()' how many clusters we want. 
+grps <- cutree(hc, k=2)
+
+# Plot data and color by hclust grouping
+plot(data, col=grps)
+```
+
+### Kmeans recap
+- clusters data, but must tell it how many centers you want.  
+
+- functions needs euclidean distances. 
+
+### Hclust recap
+- doesn't take raw data. Must give it a distance matrix. 
+
+- doesn't require euclidean distances as input.
+
+
+# Principal Component Analysis w/ UK Food Data 
+
+
+Analysis goal: is the diet composition across the 4 countries of interest different? 
+```{r}
+# Import data
+url <- "https://tinyurl.com/UK-foods"
+uk_food <- read.csv(url, row.names = 1)
+
+# Determine the number of rows and columns in the dataframe
+dim(uk_food)
+```
+> Q1. How many rows and columns are in your new data frame named x? What R functions could you use to answer this questions?
+
+Initially, 17 rows, 5 columns. You can use 'dim()' function to determine this. 
+Note, there are only 4 countries, so when .csv is read in, you must tell it that rownames are in the first column, row.names=1. 
+
+> Q2. Which approach to solving the ‘row-names problem’ mentioned above do you prefer and why? Is one approach more robust than another under certain circumstances?
+
+The row.names option when reading in the .csv, because it doesnt overwrite or obstruct the file you are importing. 
+
+```{r}
+# Start to visualize data
+barplot(as.matrix(uk_food), col=rainbow(17))
+barplot(as.matrix(uk_food), beside=T, col=rainbow(nrow(uk_food))) # plot each food category separately 
+
+mycols <- rainbow(nrow(uk_food)) #generate colors # of food categories 
+
+# Plot all possible pairwise correlation plots 
+pairs(uk_food, col=mycols, pch=16) #alternatively can set col=rainbow(17). Accomplishes the same thing 
+
+```
+
+> Q6. What is the main differences between N. Ireland and the other countries of the UK in terms of this data-set?
+
+From the limited analysis we've completed, it seems that N. Ireland has lower diversity in what they eat compared to other countries. I.e., there are a few predominant food groups w/ high frequency, and the remaining food groups have lower frequency. 
+
+# PCA to the rescue!
+
+Here we will use the base R function for PCA, which is called 'prcomp()'. 
+
+```{r}
+# Run PCA
+#As we noted in the lecture portion of class, prcomp() expects the observations to be rows and the variables to be columns therefore we need to first transpose our data.frame matrix with the t() transpose function.
+
+pca <- prcomp(t(uk_food)) # transpose dataframe for PCA analysis 
+summary(pca)           
+attributes(pca)
+pca$x
+
+# Plot PCA 
+plot(pca$x[, 1:2])#plot PCA1 & 2 for each country 
+text(pca$x[,1], pca$x[,2], colnames(uk_food))
+             
+```
+
+We can also examine the PCA "loadings" and investigate how much each individual food group contributes to each PC
+
+```{r}
+
+#Lets focus on PC1 as it accounts for > 90% of variance 
+par(mar=c(10, 3, 0.35, 0))
+barplot(pca$rotation[, 1], las=2)
+
+```
+> Q9: Generate a similar ‘loadings plot’ for PC2. What two food groups feature prominantely and what does PC2 maninly tell us about?
+
+PC2 mainly tells us about differences between Wales, Engalnd, and Scottland. Wales has a high feature count for processed potatoes VS Scottland which has a high feature count for soft drinks. 
+
+```{r}
+# Plot for PC2 
+par(mar=c(10, 3, 0.35, 0))
+barplot(pca$rotation[, 2], las=2)
+```
+
+# PCA of RNA-seq data
+
+```{r}
+url2 <- "https://tinyurl.com/expression-CSV"
+rna.data <- read.csv(url2, row.names=1)
+head(rna.data)
+```
+ > Q10: How many genes and samples are in this data set?
+ 
+ 100 genes and 10 samples
+ 
+```{r}
+dim(rna.data)
+```
+```{r}
+# Generate PCA
+pca_rna <- prcomp(t(rna.data), scale=TRUE) #transpose data before running PCA analysis 
+ 
+# Simple un polished plot of pc1 and pc2
+plot(pca_rna$x[,1], pca_rna$x[,2], xlab="PC1", ylab="PC2")
+text(pca_rna$x[, 1:2], labels= colnames(rna.data))
+
+#Investigate what proportion of variance PC1 explains
+summary(pca_rna) 
+```
+ 
+
