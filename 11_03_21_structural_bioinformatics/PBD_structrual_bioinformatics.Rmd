@@ -44,21 +44,111 @@ round(((pdb_stats$Total[1]/sum(pdb_stats$Total))*100), 2)
 
 Import protein structure ![](my_structure.png)
 
-> Q4: Water molecules normally have 3 atoms. Why do we see just one atom per water molecule in this structure?
+>********** Q4: Water molecules normally have 3 atoms. Why do we see just one atom per water molecule in this structure?
 
 
-> Q5: There is a conserved water molecule in the binding site. Can you identify this water molecule? What residue number does this water molecule have (see note below)?
+>********** Q5: There is a conserved water molecule in the binding site. Can you identify this water molecule? What residue number does this water molecule have (see note below)?
 
 # Using Bio3D in R for structural bioinformatics 
 ```{r}
 library(bio3d)
 pdb <- read.pdb("1hel")
 pdb
-pdb$atom
-
-m <- nma(pdb)
-plot(m)
-
-mktrj(m, file="nma.pdb")
+head(pdb$atom)
 ```
+
+Let's do a quick bioinformatics prediction of protein dynamics (flexibility). 
+
+For this use the `nma()` function, which does Normal Analysis Mode
+
+```{r}
+modes <- nma(pdb)
+plot(modes)
+
+```
+
+Make a trajectory of this prediction with the `mktrj()`. 
+
+```{r}
+mktrj(modes, file="nma.pdb")
+```
+Display the image from VMD
+
+![](nma_png.png)
+# Comparative analysis: 
+# Searching PDB for structures based on protein sequence
+
+Sequence -> PDB -> Structures -> MSA (multiple structure alignment. can also be multiple sequence alignment for other applications) -> PCA
+
+Start by getting sequence of interest
+```{r}
+aa <- get.seq("1AKE_A")
+aa
+
+# search pdb (the main database for experimental structures) for sequences comparative to my aa
+blast <- blast.pdb(aa)
+
+hits <- plot(blast)
+
+```
+Now I have my top hits from the search of the PDB. Now grab the sequence identifiers 
+
+```{r}
+hits$pdb.id
+```
+Download all the similar structures in the PDB and store them on our computer 
+
+```{r}
+# Download related PDB files
+files <- get.pdb(hits$pdb.id, path="pdbs", split=TRUE, gzip=TRUE)
+```
+
+Now, we can align all of the comparative structures to our query protein 
+
+```{r}
+# Align releated PDBs
+pdbs <- pdbaln(files, fit = TRUE)
+```
+
+# Plot alignments 
+```{r}
+# Vector containing PDB codes for figure axis
+ids <- basename.pdb(pdbs$id)
+
+# Draw schematic alignment
+plot(pdbs, labels=ids)
+```
+# PCA
+
+We will complete a PCA on the XYZ coordinate data of all structures (within `pdbs` object) with the `PCA()` function in bio3d
+```{r}
+pc <- pca(pdbs)
+plot(pc)
+```
+
+Next, visualize the displacements (i.e. the movements of the structure) that are captured by PC1
+
+```{r}
+mktrj(pc, pc=1, file="pca.pdb")
+```
+![](pca.png)
+
+```{r}
+#Let's save our important results 
+save(blast, hits, pca, pdbs, file="./my_results.RData")
+
+```
+
+
+# On another note.... look up predicted AlphaFold structure of your "find a gene"  protein. 
+
+Predicted structure of Ileal Bile Acid Transporter: 
+
+![](find_a_gene/alpha_fold_predicted_structure_ileal_ba_transporter)
+
+```{r}
+
+```
+
+
 
