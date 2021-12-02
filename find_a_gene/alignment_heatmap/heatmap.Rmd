@@ -1,0 +1,45 @@
+---
+title: "find_a_gene_alignment_heatmap"
+author: "Kelly_F"
+date: "12/1/2021"
+output: html_document
+---
+# Import packages
+```{r}
+library(bio3d)
+
+```
+# Import FASTA File
+
+```{r}
+alignment <- read.fasta("./alignment_results_fasta.fst")
+```
+
+# Sequence Identity Matrix
+```{r}
+seq_identity_matrix <- seqidentity(alignment = alignment)
+```
+
+# Generate Heatmap
+
+```{r}
+heatmap(seq_identity_matrix, 
+        margins= c(10,10), 
+        cexRow= 1, cexCol=1)
+```
+# Finding similar protein structures
+
+```{r}
+# Generate consensus sequence from alignment file
+consensus_seq <- consensus(alignment = alignment)
+
+# Perform BLAST
+blast_results <- blast.pdb(seq = consensus_seq$seq, database = "pdb")
+# Reference ID RID = UG21V7M6013 
+
+# Annotate BLAST Results 
+annotations <- pdb.annotate(ids= c('4BER', '4N7W', '3ZUY'),anno.terms = "structureId" )
+
+```
+
+
