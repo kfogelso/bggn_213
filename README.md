@@ -14,5 +14,5 @@ This repo is for my UCSD bioinformatics class.
 - 07. Unix Homework Answers
 - 08. DESeq2
 - 09. RNA Seq Mini Project
-- 10. COVID Vaccine Rate Mini Project 
+- 10. COVID Vaccine Rate Mini Project [source] (https://github.com/kfogelso/bggn_213/blob/main/11_24_21_COVID_vaccine_rates/covid_vaccination_rates_mini_proj.md)
 - 11. Find a Gene Project
