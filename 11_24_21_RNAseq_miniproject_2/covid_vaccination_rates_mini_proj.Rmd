@@ -3,8 +3,8 @@ title: "Covid_vaccination_rates"
 author: "Kelly_F"
 date: "12/3/2021"
 output:
-  pdf_document: default
-  html_document: default
+  github_document: default
+
 ---
 # Import Vaccination Data 
 
