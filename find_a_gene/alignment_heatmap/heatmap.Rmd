@@ -38,7 +38,7 @@ blast_results <- blast.pdb(seq = consensus_seq$seq, database = "pdb")
 # Reference ID RID = UG21V7M6013 
 
 # Annotate BLAST Results 
-annotations <- pdb.annotate(ids= c('4BER', '4N7W', '3ZUY'),anno.terms = "structureId" )
+annotations <- pdb.annotate(ids= c('4BER', '4N7W', '3ZUY'))
 
 ```
 
